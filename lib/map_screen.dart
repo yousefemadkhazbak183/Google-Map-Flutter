@@ -19,6 +19,7 @@ class MapSampleState extends State<MapScreen> {
     zoom: 14,
   );
   String mapStyle = '';
+  Set<Marker> markers = {};
   @override
   void initState() {
     _loadMapStyle();
@@ -31,10 +32,25 @@ class MapSampleState extends State<MapScreen> {
       body: GoogleMap(
         style: mapStyle,
         initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
+        onMapCreated: (GoogleMapController controller) async {
           _controller.complete(controller);
           _loadMapStyle();
+          markers.addAll({
+            Marker(
+              markerId: const MarkerId('Joe'),
+              position: const LatLng(30.042316, 31.190980),
+              infoWindow: const InfoWindow(title: 'Joe'),
+              icon: await customIcon('assets/car_icon.png'),
+            ),
+            Marker(
+              markerId: const MarkerId('Joe2'),
+              position: const LatLng(30.04568171838561, 31.129671150500652),
+              infoWindow: const InfoWindow(title: 'Nahia', snippet: 'Kerdasa'),
+              icon: await customIcon('assets/car_icon.png'),
+            ),
+          });
         },
+        markers: markers,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -49,7 +65,7 @@ class MapSampleState extends State<MapScreen> {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(
+        const CameraPosition(
           target: LatLng(30.145461204825303, 31.720157719774647),
           zoom: 11,
         ),
@@ -64,5 +80,12 @@ class MapSampleState extends State<MapScreen> {
     setState(() {
       mapStyle = style;
     });
+  }
+
+  Future<BitmapDescriptor> customIcon(String asset) async {
+    return await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(48, 48)),
+      asset,
+    );
   }
 }
