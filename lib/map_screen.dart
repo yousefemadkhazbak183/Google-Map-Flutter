@@ -15,37 +15,54 @@ class MapSampleState extends State<MapScreen> {
       Completer<GoogleMapController>();
 
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+    target: LatLng(30.042316, 31.190980),
+    zoom: 14,
   );
-
-  static const CameraPosition _kLake = CameraPosition(
-    bearing: 192.8334901395799,
-    target: LatLng(37.43296265331129, -122.08832357078792),
-    tilt: 59.440717697143555,
-    zoom: 19.151926040649414,
-  );
+  String mapStyle = '';
+  @override
+  void initState() {
+    _loadMapStyle();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GoogleMap(
-        mapType: MapType.hybrid,
+        style: mapStyle,
         initialCameraPosition: _kGooglePlex,
         onMapCreated: (GoogleMapController controller) {
           _controller.complete(controller);
+          _loadMapStyle();
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: const Text('To the lake!'),
-        icon: const Icon(Icons.directions_boat),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          moveToCairo();
+        },
+        child: const Icon(Icons.location_city),
       ),
     );
   }
 
-  Future<void> _goToTheLake() async {
+  void moveToCairo() async {
     final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(30.145461204825303, 31.720157719774647),
+          zoom: 11,
+        ),
+      ),
+    );
+  }
+
+  void _loadMapStyle() async {
+    final String style = await DefaultAssetBundle.of(
+      context,
+    ).loadString('assets/map_style.json');
+    setState(() {
+      mapStyle = style;
+    });
   }
 }
